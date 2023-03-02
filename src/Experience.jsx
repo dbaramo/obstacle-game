@@ -5,13 +5,12 @@ import Player from "./Player.jsx";
 import useGame from './stores/useGame.js'
 
 export default function Experience() {
-
   const blocksCount = useGame((state) => state.blocksCount)
   const blocksSeed = useGame((state) => state.blocksSeed)
 
   return (
     <>
-    <color args={['#bdedfc']} attach="background" />
+    <color args={['black']} attach="background" />
       <Physics>
         {/* <Debug /> */} 
         <Lights />
