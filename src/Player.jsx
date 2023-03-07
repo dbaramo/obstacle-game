@@ -28,8 +28,9 @@ export default function Player(){
         const ray = new rapier.Ray(origin, direction)
         const hit = rapierWorld.castRay(ray, 10, true)
 
-        if(hit.toi < 0.15)
+        if(hit.toi < 0.2){
             body.current.applyImpulse({ x: 0, y: 0.5, z: 0 })
+        }
     }
 
     const reset = () => {
@@ -143,7 +144,7 @@ export default function Player(){
         >
             <mesh castShadow>
                 <icosahedronGeometry args={[0.3, 1 ]} />
-                <meshStandardMaterial flatShading color='mediumpurple' />
+                <meshStandardMaterial flatShading color='limegreen' />
             </mesh>
         </RigidBody>
     )

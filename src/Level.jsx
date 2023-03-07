@@ -4,14 +4,14 @@ import { useMemo, useState, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Float, Text, useGLTF } from '@react-three/drei'
 
+import GameFloorMesh from './GameFloorMesh.jsx'
+
 THREE.ColorManagement.legacyMode = false
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
 
-const floor1Material = new THREE.MeshStandardMaterial({ color: 'limegreen' })
-const floor2Material = new THREE.MeshStandardMaterial({ color: 'greenyellow' })
-const obstacleMaterial = new THREE.MeshStandardMaterial({ color: 'orangered' })
-const wallMaterial = new THREE.MeshStandardMaterial({ color: 'slategrey' })
+const floor1Material = new THREE.MeshStandardMaterial({ color: 'white' })
+const wallMaterial = new THREE.MeshStandardMaterial({ color: '#2A3134' })
 
 export function BlockStart({ position = [0, 0, 0] }){
   return (
@@ -19,7 +19,7 @@ export function BlockStart({ position = [0, 0, 0] }){
       <Float floatIntensity={0.35} rotationIntensity={0.35}>
         <Text 
           font='./bebas-neue-v9-latin-regular.woff'
-          scale={0.5}
+          scale={0.4}
           maxWidth={0.25}
           lineHeight={0.75}
           textAlign='right'
@@ -30,7 +30,10 @@ export function BlockStart({ position = [0, 0, 0] }){
           <meshBasicMaterial toneMapped={false} />
         </Text>
       </Float>
-      <mesh geometry={boxGeometry} material={floor1Material} position={[ 0, -0.1, 0 ]} scale={[4, 0.2, 4]} receiveShadow />
+      
+      <RigidBody type='fixed'>
+        <mesh geometry={boxGeometry} material={floor1Material} position={[ 0, -0.1, 0 ]} scale={[4, 0.2, 4]} receiveShadow />
+      </RigidBody>
     </group>
   )
 }
@@ -50,7 +53,9 @@ export function BlockEnd({ position = [0, 0, 0] }){
         FINISH
         <meshBasicMaterial toneMapped={false} />
       </Text>
-      <mesh geometry={boxGeometry} material={floor1Material} position={[ 0, 0, 0 ]} scale={[4, 0.2, 4]} receiveShadow />
+      <RigidBody type='fixed'>
+        <mesh geometry={boxGeometry} material={floor1Material} position={[ 0, 0, 0 ]} scale={[4, 0.2, 4]} receiveShadow />
+      </RigidBody>
       <RigidBody type='fixed' colliders='hull' position={[0, 0.25, 0]} restitution={0.2} friction={0}>
         <primitive object={hamburger.scene} scale={0.2} />
       </RigidBody>
@@ -72,10 +77,10 @@ export function BlockSpinner({ position = [0, 0, 0] }){
 
   return (
     <group position={position}>
-    <mesh geometry={boxGeometry} material={floor2Material} position={[ 0, -0.1, 0 ]} scale={[4, 0.2, 4]} receiveShadow />  
+    <GameFloorMesh type={'spinner'} />
     
     <RigidBody ref={obstacle} type='kinematicPosition' position={[ 0, 0.3, 0]} restitution={ 0.2 } friction={ 0 }>
-        <mesh geometry={boxGeometry} material={obstacleMaterial} scale={ [3.5, 0.3, 0.3] } castShadow receiveShadow  />
+        <mesh geometry={boxGeometry} material={wallMaterial} scale={ [3.5, 0.3, 0.3] } castShadow receiveShadow  />
     </RigidBody>
     </group>
   )
@@ -94,10 +99,10 @@ export function BlockLimbo({ position = [0, 0, 0] }){
 
   return (
     <group position={position}>
-    <mesh geometry={boxGeometry} material={floor2Material} position={[ 0, -0.1, 0 ]} scale={[4, 0.2, 4]} receiveShadow />  
+    <GameFloorMesh type={'limbo'} />
     
     <RigidBody ref={obstacle} type='kinematicPosition' position={[ 0, 0.3, 0]} restitution={ 0.2 } friction={ 0 }>
-        <mesh geometry={boxGeometry} material={obstacleMaterial} scale={ [3.5, 0.3, 0.3] } castShadow receiveShadow  />
+        <mesh geometry={boxGeometry} material={wallMaterial} scale={ [3.5, 0.3, 0.3] } castShadow receiveShadow  />
     </RigidBody>
     </group>
   )
@@ -116,10 +121,10 @@ export function BlockAxe({ position = [0, 0, 0] }){
 
   return (
     <group position={position}>
-    <mesh geometry={boxGeometry} material={floor2Material} position={[ 0, -0.1, 0 ]} scale={[4, 0.2, 4]} receiveShadow />  
+    <GameFloorMesh type={'axe'} />
     
     <RigidBody ref={obstacle} type='kinematicPosition' position={[ 0, 0.3, 0]} restitution={ 0.2 } friction={ 0 }>
-        <mesh geometry={boxGeometry} material={obstacleMaterial} scale={ [1.5, 1.5, 0.3] } castShadow receiveShadow  />
+        <mesh geometry={boxGeometry} material={wallMaterial} scale={ [1.5, 1.5, 0.3] } castShadow receiveShadow  />
     </RigidBody>
     </group>
   )
@@ -129,6 +134,7 @@ function Bounds({ length = 1 }){
   return(
     <>
       <RigidBody type="fixed" restitution={0.2} friction={0}>
+        {/* Right Wall */}
         <mesh 
           position={ [2.15, 0.75, -(length * 2) + 2] }
           geometry={ boxGeometry }
@@ -137,6 +143,7 @@ function Bounds({ length = 1 }){
           castShadow
         />
 
+        {/* Left Wall */}
         <mesh 
           position={ [-2.15, 0.75, -(length * 2) + 2] }
           geometry={ boxGeometry }
@@ -145,6 +152,7 @@ function Bounds({ length = 1 }){
           receiveShadow
         />
 
+        {/* End Wall */}
         <mesh 
           position={ [0, 0.75, -(length * 4) + 2] }
           geometry={ boxGeometry }
@@ -152,12 +160,15 @@ function Bounds({ length = 1 }){
           scale={ [4, 1.5, 0.3] }
           receiveShadow
         />
-        <CuboidCollider 
-          args={[ 2, 0.1, 2 * length ]} 
-          position={[ 0, -0.1, -(length*2) + 2 ]}
-          restitution={0.2}
-          friction={1}
-        />
+
+{/*        
+          <CuboidCollider 
+            args={[ 2, 0.1, 2 * length ]} 
+            position={[ 0, -0.1, -(length*2) + 2 ]}
+            restitution={0.2}
+            friction={1}
+          /> 
+*/}
       </RigidBody>
     </>
   )

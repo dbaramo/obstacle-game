@@ -3,10 +3,15 @@ import Lights from "./Lights.jsx";
 import { Level } from "./Level.jsx";
 import Player from "./Player.jsx";
 import useGame from './stores/useGame.js'
+import { useEffect } from "react";
 
-export default function Experience() {
+export default function Experience({chageLoadStatus}) {
   const blocksCount = useGame((state) => state.blocksCount)
   const blocksSeed = useGame((state) => state.blocksSeed)
+
+  useEffect(() => {
+    chageLoadStatus(true)
+  }, [])
 
   return (
     <>
